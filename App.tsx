@@ -26,12 +26,24 @@ const App: React.FC = () => {
     if (saved) {
       try {
         const parsed = JSON.parse(saved);
+        // Check if we should reset to initial state completely
+        // Only load user data if it's properly structured
         const merged = INITIAL_QUESTIONS.map(q => {
           const found = parsed.find((p: FlashcardType) => p.id === q.id);
-          // Ensure critical properties exist, otherwise fallback to default
-          if (found && typeof found.isNew !== 'undefined' && found.srs) {
-             return { ...q, srs: found.srs, isNew: found.isNew };
+          // If we have valid SRS data from localStorage, use it; otherwise reset to initial
+          if (found && found.srs && typeof found.isNew !== 'undefined') {
+             return { 
+               ...q, 
+               srs: { 
+                 interval: found.srs.interval,
+                 repetition: found.srs.repetition,
+                 efactor: found.srs.efactor,
+                 dueDate: found.srs.dueDate
+               }, 
+               isNew: found.isNew 
+             };
           }
+          // If no valid data found in localStorage, use initial state
           return { ...q, srs: getInitialSRSState(), isNew: true };
         });
         setCards(merged);
@@ -92,27 +104,29 @@ const App: React.FC = () => {
   const activeCard = useMemo(() => cards.find(c => c.id === activeCardId), [activeCardId, cards]);
 
   const resetAllData = () => {
-    // 1. Clear storage explicitly
-    localStorage.removeItem(STORAGE_KEY);
+    if (window.confirm("确定要重置所有数据吗？所有学习进度将丢失。")) {
+      // 1. Clear storage explicitly
+      localStorage.removeItem(STORAGE_KEY);
 
-    // 2. Reconstruct completely fresh state from constants
-    // Use spread syntax to ensure we have fresh object references for srs
-    const newCards = INITIAL_QUESTIONS.map(q => ({ 
-      ...q, 
-      srs: { ...getInitialSRSState() }, 
-      isNew: true 
-    }));
-    
-    // 3. Reset all app state
-    setCards(newCards);
-    setSessionQueue([]);
-    setIsStudyMode(false);
-    setCurrentCardIndex(0);
-    setViewCategory(null);
-    setDailyNewLimit(10);
-    
-    // 4. Force save immediately to prevent race conditions
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(newCards));
+      // 2. Reconstruct completely fresh state from constants
+      // Use spread syntax to ensure we have fresh object references for srs
+      const newCards = INITIAL_QUESTIONS.map(q => ({ 
+        ...q, 
+        srs: { ...getInitialSRSState() }, 
+        isNew: true 
+      }));
+      
+      // 3. Reset all app state
+      setCards(newCards);
+      setSessionQueue([]);
+      setIsStudyMode(false);
+      setCurrentCardIndex(0);
+      setViewCategory(null);
+      setDailyNewLimit(10);
+      
+      // 4. Force save immediately to prevent race conditions
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(newCards));
+    }
   };
 
   const startSession = () => {
@@ -144,6 +158,8 @@ const App: React.FC = () => {
   };
 
   const handleBatchReset = (ids: number[]) => {
+    if (ids.length === 0) return;
+    
     const idsSet = new Set(ids);
     setCards(prev => {
       const next = prev.map(c => 
