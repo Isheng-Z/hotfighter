@@ -28,10 +28,15 @@ const App: React.FC = () => {
         const parsed = JSON.parse(saved);
         const merged = INITIAL_QUESTIONS.map(q => {
           const found = parsed.find((p: FlashcardType) => p.id === q.id);
-          return found ? { ...q, srs: found.srs, isNew: found.isNew } : { ...q, srs: getInitialSRSState(), isNew: true };
+          // Ensure critical properties exist, otherwise fallback to default
+          if (found && typeof found.isNew !== 'undefined' && found.srs) {
+             return { ...q, srs: found.srs, isNew: found.isNew };
+          }
+          return { ...q, srs: getInitialSRSState(), isNew: true };
         });
         setCards(merged);
       } catch (e) {
+        console.error("Failed to load data, resetting.", e);
         resetAllData();
       }
     } else {
@@ -56,30 +61,58 @@ const App: React.FC = () => {
   }, [cards, isLoaded]);
 
   useEffect(() => {
-    if (isLoaded) {
-      localStorage.setItem(SETTINGS_KEY, JSON.stringify({ dailyNewLimit }));
-    }
-  }, [dailyNewLimit, isLoaded]);
-
-  useEffect(() => {
     if (darkMode) {
+      localStorage.setItem(SETTINGS_KEY, JSON.stringify({ dailyNewLimit, theme: 'dark' }));
       document.documentElement.classList.add('dark');
     } else {
+      localStorage.setItem(SETTINGS_KEY, JSON.stringify({ dailyNewLimit, theme: 'light' }));
       document.documentElement.classList.remove('dark');
     }
   }, [darkMode]);
 
   useEffect(() => {
-    if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+    const savedSettings = localStorage.getItem(SETTINGS_KEY);
+    if (savedSettings) {
+       try {
+         const { theme } = JSON.parse(savedSettings);
+         if (theme === 'dark') setDarkMode(true);
+       } catch(e) {}
+    } else if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
       setDarkMode(true);
     }
   }, []);
+
+  useEffect(() => {
+    if (isLoaded) {
+      localStorage.setItem(SETTINGS_KEY, JSON.stringify({ dailyNewLimit, theme: darkMode ? 'dark' : 'light' }));
+    }
+  }, [dailyNewLimit, isLoaded, darkMode]);
 
   const activeCardId = sessionQueue[currentCardIndex];
   const activeCard = useMemo(() => cards.find(c => c.id === activeCardId), [activeCardId, cards]);
 
   const resetAllData = () => {
-    setCards(INITIAL_QUESTIONS.map(q => ({ ...q, srs: getInitialSRSState(), isNew: true })));
+    // 1. Clear storage explicitly
+    localStorage.removeItem(STORAGE_KEY);
+
+    // 2. Reconstruct completely fresh state from constants
+    // Use spread syntax to ensure we have fresh object references for srs
+    const newCards = INITIAL_QUESTIONS.map(q => ({ 
+      ...q, 
+      srs: { ...getInitialSRSState() }, 
+      isNew: true 
+    }));
+    
+    // 3. Reset all app state
+    setCards(newCards);
+    setSessionQueue([]);
+    setIsStudyMode(false);
+    setCurrentCardIndex(0);
+    setViewCategory(null);
+    setDailyNewLimit(10);
+    
+    // 4. Force save immediately to prevent race conditions
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(newCards));
   };
 
   const startSession = () => {
@@ -112,9 +145,14 @@ const App: React.FC = () => {
 
   const handleBatchReset = (ids: number[]) => {
     const idsSet = new Set(ids);
-    setCards(prev => prev.map(c => 
-      idsSet.has(c.id) ? { ...c, srs: getInitialSRSState(), isNew: true } : c
-    ));
+    setCards(prev => {
+      const next = prev.map(c => 
+        idsSet.has(c.id) ? { ...c, srs: { ...getInitialSRSState() }, isNew: true } : c
+      );
+      // Force immediate save to ensure persistence even if app closes
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(next));
+      return next;
+    });
   };
 
   const toggleTheme = () => setDarkMode(!darkMode);
@@ -129,14 +167,14 @@ const App: React.FC = () => {
     }
   };
 
-  if (!isLoaded) return <div className="min-h-screen"></div>;
+  if (!isLoaded) return <div className="h-screen w-full bg-slate-50 dark:bg-slate-900"></div>;
 
   return (
-    <div className="min-h-screen flex flex-col font-sans">
+    <div className="h-screen flex flex-col font-sans overflow-hidden bg-slate-50 dark:bg-slate-900">
       
       {/* Navbar - Minimalist */}
-      <nav className="fixed top-0 left-0 w-full z-50 flex items-center justify-between px-6 py-4 transition-all duration-300">
-        <div className="flex items-center gap-4">
+      <nav className="fixed top-0 left-0 w-full z-50 flex items-center justify-between px-4 lg:px-6 py-4 transition-all duration-300 pointer-events-none">
+        <div className="flex items-center gap-4 pointer-events-auto">
           {(isStudyMode || viewCategory) && (
             <button 
               onClick={() => { setIsStudyMode(false); setViewCategory(null); }} 
@@ -152,7 +190,7 @@ const App: React.FC = () => {
           )}
         </div>
         
-        <div className="flex items-center gap-2 glass rounded-full px-2 py-1">
+        <div className="flex items-center gap-2 glass rounded-full px-2 py-1 pointer-events-auto">
           <button onClick={toggleLang} className="p-2 rounded-full hover:bg-white/30 transition-all text-slate-600 dark:text-slate-300">
             <Languages className="w-4 h-4" />
           </button>
@@ -162,11 +200,11 @@ const App: React.FC = () => {
         </div>
       </nav>
 
-      <main className="container max-w-5xl mx-auto px-4 py-24 flex-1">
+      <main className="flex-1 flex flex-col h-full w-full max-w-5xl mx-auto px-3 lg:px-4 pt-20 pb-4 relative z-0">
         {isStudyMode && activeCard ? (
-          <div className="space-y-8 animate-fade-in">
+          <div className="h-full flex flex-col space-y-4 lg:space-y-8 animate-fade-in overflow-hidden">
              {/* Subtle Progress Line */}
-             <div className="w-full max-w-xs mx-auto flex items-center gap-4 opacity-50">
+             <div className="w-full max-w-xs mx-auto flex items-center gap-4 opacity-50 flex-none">
                <span className="text-xs font-serif italic text-slate-600 dark:text-slate-400">{currentCardIndex + 1}</span>
                <div className="flex-1 h-px bg-slate-300 dark:bg-white/20">
                   <div className="h-full bg-slate-800 dark:bg-white transition-all duration-700 ease-in-out" style={{ width: `${((currentCardIndex + 1) / sessionQueue.length) * 100}%` }} />
@@ -174,15 +212,19 @@ const App: React.FC = () => {
                <span className="text-xs font-serif italic text-slate-600 dark:text-slate-400">{sessionQueue.length}</span>
              </div>
              
-             <Flashcard card={activeCard} onRate={handleRate} lang={lang} toggleLang={toggleLang} />
+             <div className="flex-1 min-h-0">
+                <Flashcard card={activeCard} onRate={handleRate} lang={lang} toggleLang={toggleLang} />
+             </div>
           </div>
         ) : viewCategory ? (
-          <QuestionList 
-            category={viewCategory} 
-            cards={getCategoryCards()} 
-            onBack={() => setViewCategory(null)}
-            onResetBatch={handleBatchReset}
-          />
+          <div className="h-full overflow-hidden flex flex-col">
+            <QuestionList 
+              category={viewCategory} 
+              cards={getCategoryCards()} 
+              onBack={() => setViewCategory(null)}
+              onResetBatch={handleBatchReset}
+            />
+          </div>
         ) : (
           <Dashboard 
             cards={cards} 

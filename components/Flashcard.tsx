@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Flashcard as FlashcardType, Rating, Difficulty, Language } from '../types';
-import { Brain, RefreshCw, CheckCircle, HelpCircle, Languages, ExternalLink, PlayCircle } from 'lucide-react';
+import { Brain, RefreshCw, CheckCircle, HelpCircle, Languages, ExternalLink } from 'lucide-react';
 
 interface Props {
   card: FlashcardType;
@@ -79,7 +79,7 @@ export const Flashcard: React.FC<Props> = ({ card, onRate, lang, toggleLang }) =
     : `https://leetcode.com/problems/${card.slug}/editorial/`;
 
   return (
-    <div className="w-full max-w-2xl mx-auto h-[700px] relative select-none" style={{ perspective: '2500px' }}>
+    <div className="w-full max-w-2xl mx-auto h-[calc(100vh-120px)] min-h-[500px] lg:h-[700px] relative select-none" style={{ perspective: '2500px' }}>
       <div 
         className="relative w-full h-full duration-700 ease-out-back"
         style={{
@@ -96,9 +96,9 @@ export const Flashcard: React.FC<Props> = ({ card, onRate, lang, toggleLang }) =
           {/* Paper Texture Overlay */}
           <div className="absolute inset-0 opacity-[0.03] pointer-events-none bg-[url('https://www.transparenttextures.com/patterns/cream-paper.png')] mix-blend-multiply dark:mix-blend-overlay"></div>
 
-          <div className="px-10 pt-10 pb-6 flex-1 flex flex-col relative z-10">
-            <div className="flex justify-between items-start mb-8">
-               <span className="text-8xl font-serif font-black text-slate-100 dark:text-slate-800/50 select-none absolute -top-4 -right-4 -z-10 pointer-events-none">
+          <div className="px-6 py-6 lg:px-10 lg:pt-10 lg:pb-6 flex-1 flex flex-col relative z-10">
+            <div className="flex justify-between items-start mb-6 lg:mb-8">
+               <span className="text-6xl lg:text-8xl font-serif font-black text-slate-100 dark:text-slate-800/50 select-none absolute -top-4 -right-4 -z-10 pointer-events-none">
                  {card.id}
                </span>
                <div className="flex gap-2 relative z-10">
@@ -109,11 +109,11 @@ export const Flashcard: React.FC<Props> = ({ card, onRate, lang, toggleLang }) =
                </button>
             </div>
 
-            <h2 className="text-4xl font-serif font-bold text-slate-800 dark:text-slate-100 mb-6 leading-tight relative z-10">
+            <h2 className="text-2xl lg:text-4xl font-serif font-bold text-slate-800 dark:text-slate-100 mb-4 lg:mb-6 leading-tight relative z-10">
               {title}
             </h2>
 
-            <div className="flex flex-wrap gap-2 mb-10 relative z-10">
+            <div className="flex flex-wrap gap-2 mb-6 lg:mb-10 relative z-10">
                {card.tags.map(tag => (
                  <span key={tag} className="text-[10px] font-bold text-slate-500 uppercase tracking-wider bg-slate-100 dark:bg-slate-800 px-3 py-1.5 rounded-full">
                    {tag}
@@ -121,30 +121,31 @@ export const Flashcard: React.FC<Props> = ({ card, onRate, lang, toggleLang }) =
                ))}
             </div>
 
-            <div className="flex-1 overflow-y-auto pr-2 relative z-10 no-scrollbar space-y-8">
-               <p className="text-xl text-slate-600 dark:text-slate-300 leading-relaxed font-sans font-light">
+            <div className="flex-1 overflow-y-auto pr-2 relative z-10 no-scrollbar space-y-6 lg:space-y-8">
+               {/* Increased font size and used font-normal for better readability */}
+               <p className="text-xl lg:text-2xl text-slate-700 dark:text-slate-200 leading-relaxed font-sans font-normal">
                  {desc}
                </p>
 
-               <div className="bg-slate-50/80 dark:bg-slate-800/50 rounded-2xl p-6 border border-slate-100 dark:border-slate-700/50">
-                  <div className="space-y-4 font-mono text-sm text-slate-600 dark:text-slate-400">
+               <div className="bg-slate-50/80 dark:bg-slate-800/50 rounded-2xl p-4 lg:p-6 border border-slate-100 dark:border-slate-700/50">
+                  <div className="space-y-4 font-mono text-base lg:text-lg text-slate-700 dark:text-slate-300">
                     <div className="flex flex-col gap-2">
                       <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">{text.input}</span>
-                      <span className="bg-white dark:bg-slate-900 px-4 py-3 rounded-lg border border-slate-200 dark:border-slate-700 shadow-sm">{card.exampleInput}</span>
+                      <span className="bg-white dark:bg-slate-900 px-4 py-3 rounded-lg border border-slate-200 dark:border-slate-700 shadow-sm overflow-x-auto">{card.exampleInput}</span>
                     </div>
                     <div className="flex flex-col gap-2">
                       <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">{text.output}</span>
-                      <span className="bg-white dark:bg-slate-900 px-4 py-3 rounded-lg border border-slate-200 dark:border-slate-700 shadow-sm">{card.exampleOutput}</span>
+                      <span className="bg-white dark:bg-slate-900 px-4 py-3 rounded-lg border border-slate-200 dark:border-slate-700 shadow-sm overflow-x-auto">{card.exampleOutput}</span>
                     </div>
                   </div>
                </div>
             </div>
           </div>
 
-          <div className="p-8 bg-white/50 dark:bg-slate-900/50 border-t border-slate-100 dark:border-slate-800 backdrop-blur-md">
+          <div className="p-6 lg:p-8 bg-white/50 dark:bg-slate-900/50 border-t border-slate-100 dark:border-slate-800 backdrop-blur-md">
             <button 
               onClick={handleFlip}
-              className="w-full py-4 bg-slate-800 dark:bg-sunrise-sun text-white rounded-xl font-serif font-bold text-lg hover:shadow-xl hover:shadow-slate-800/20 dark:hover:shadow-orange-900/30 transition-all hover:-translate-y-1"
+              className="w-full py-3 lg:py-4 bg-slate-800 dark:bg-sunrise-sun text-white rounded-xl font-serif font-bold text-lg hover:shadow-xl hover:shadow-slate-800/20 dark:hover:shadow-orange-900/30 transition-all hover:-translate-y-1"
             >
               {text.showAnswer}
             </button>
@@ -164,32 +165,32 @@ export const Flashcard: React.FC<Props> = ({ card, onRate, lang, toggleLang }) =
            {/* Paper Texture Overlay */}
            <div className="absolute inset-0 opacity-[0.03] pointer-events-none bg-[url('https://www.transparenttextures.com/patterns/cream-paper.png')] mix-blend-multiply dark:mix-blend-overlay"></div>
 
-          <div className="px-8 py-5 border-b border-slate-100 dark:border-slate-800 flex justify-between items-center bg-slate-50/50 dark:bg-slate-800/30">
-            <h3 className="font-serif font-bold text-slate-500 truncate max-w-[80%] opacity-60">{title}</h3>
+          <div className="px-5 py-4 lg:px-8 lg:py-5 border-b border-slate-100 dark:border-slate-800 flex justify-between items-center bg-slate-50/50 dark:bg-slate-800/30">
+            <h3 className="font-serif font-bold text-slate-500 truncate max-w-[80%] opacity-60 text-sm lg:text-base">{title}</h3>
             <button onClick={(e) => { e.stopPropagation(); toggleLang(); }} className="text-slate-400 hover:text-slate-600">
               <Languages className="w-5 h-5" />
             </button>
           </div>
 
-          <div className="flex-1 overflow-y-auto px-8 py-8 space-y-8 no-scrollbar relative z-10">
+          <div className="flex-1 overflow-y-auto px-6 py-6 lg:px-8 lg:py-8 space-y-6 lg:space-y-8 no-scrollbar relative z-10">
             <div>
-              <h3 className="text-xs font-bold text-indigo-600 dark:text-sunrise-sun uppercase tracking-widest mb-4 flex items-center gap-2">
+              <h3 className="text-xs font-bold text-indigo-600 dark:text-sunrise-sun uppercase tracking-widest mb-3 lg:mb-4 flex items-center gap-2">
                 <Brain className="w-4 h-4" />
                 {text.coreIdea}
               </h3>
-              <p className="text-2xl text-slate-800 dark:text-slate-100 leading-relaxed font-serif">
+              <p className="text-2xl lg:text-3xl text-slate-800 dark:text-slate-100 leading-relaxed font-serif font-medium">
                 {idea}
               </p>
             </div>
 
-            <div className="grid grid-cols-2 gap-4">
-               <div className="p-5 rounded-2xl bg-orange-50 dark:bg-orange-900/20 border border-orange-100 dark:border-orange-900/40">
-                 <div className="text-[10px] font-bold text-orange-600 dark:text-orange-400 uppercase tracking-widest mb-2">{text.timeComp}</div>
-                 <div className="font-mono font-bold text-lg text-slate-700 dark:text-slate-200">{card.timeComplexity}</div>
+            <div className="grid grid-cols-2 gap-3 lg:gap-4">
+               <div className="p-4 lg:p-5 rounded-2xl bg-orange-50 dark:bg-orange-900/20 border border-orange-100 dark:border-orange-900/40">
+                 <div className="text-[10px] font-bold text-orange-600 dark:text-orange-400 uppercase tracking-widest mb-1 lg:mb-2">{text.timeComp}</div>
+                 <div className="font-mono font-bold text-base lg:text-xl text-slate-700 dark:text-slate-200">{card.timeComplexity}</div>
                </div>
-               <div className="p-5 rounded-2xl bg-blue-50 dark:bg-blue-900/20 border border-blue-100 dark:border-blue-900/40">
-                 <div className="text-[10px] font-bold text-blue-600 dark:text-blue-400 uppercase tracking-widest mb-2">{text.spaceComp}</div>
-                 <div className="font-mono font-bold text-lg text-slate-700 dark:text-slate-200">{card.spaceComplexity}</div>
+               <div className="p-4 lg:p-5 rounded-2xl bg-blue-50 dark:bg-blue-900/20 border border-blue-100 dark:border-blue-900/40">
+                 <div className="text-[10px] font-bold text-blue-600 dark:text-blue-400 uppercase tracking-widest mb-1 lg:mb-2">{text.spaceComp}</div>
+                 <div className="font-mono font-bold text-base lg:text-xl text-slate-700 dark:text-slate-200">{card.spaceComplexity}</div>
                </div>
             </div>
 
@@ -204,8 +205,8 @@ export const Flashcard: React.FC<Props> = ({ card, onRate, lang, toggleLang }) =
             </a>
           </div>
 
-          <div className="p-6 bg-slate-50/80 dark:bg-slate-950/50 border-t border-slate-100 dark:border-slate-800 backdrop-blur-md">
-             <div className="grid grid-cols-3 gap-4">
+          <div className="p-4 lg:p-6 bg-slate-50/80 dark:bg-slate-950/50 border-t border-slate-100 dark:border-slate-800 backdrop-blur-md">
+             <div className="grid grid-cols-3 gap-3 lg:gap-4">
                {[
                  { rating: Rating.Forgot, icon: RefreshCw, label: text.forgot, color: 'text-rose-600 bg-rose-50 hover:bg-rose-100 border-rose-200 dark:bg-rose-900/20 dark:hover:bg-rose-900/40 dark:border-rose-800 dark:text-rose-400' },
                  { rating: Rating.Hazy, icon: HelpCircle, label: text.hazy, color: 'text-amber-600 bg-amber-50 hover:bg-amber-100 border-amber-200 dark:bg-amber-900/20 dark:hover:bg-amber-900/40 dark:border-amber-800 dark:text-amber-400' },
@@ -214,10 +215,10 @@ export const Flashcard: React.FC<Props> = ({ card, onRate, lang, toggleLang }) =
                  <button 
                    key={btn.label}
                    onClick={() => handleRate(btn.rating)} 
-                   className={`flex flex-col items-center gap-2 py-4 rounded-xl border transition-all ${btn.color} active:scale-95 shadow-sm`}
+                   className={`flex flex-col items-center gap-2 py-3 lg:py-4 rounded-xl border transition-all ${btn.color} active:scale-95 shadow-sm`}
                  >
-                   <btn.icon className="w-5 h-5" />
-                   <span className="text-[10px] font-bold uppercase tracking-widest">{btn.label}</span>
+                   <btn.icon className="w-5 h-6 lg:w-6 lg:h-6" />
+                   <span className="text-[10px] lg:text-xs font-bold uppercase tracking-widest">{btn.label}</span>
                  </button>
                ))}
              </div>

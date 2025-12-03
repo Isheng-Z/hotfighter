@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Flashcard, Difficulty } from '../types';
-import { ArrowLeft, RefreshCcw, Circle, Calendar, CheckSquare, Square, Trash2 } from 'lucide-react';
+import { CheckSquare } from 'lucide-react';
 
 interface Props {
   category: 'new' | 'learning' | 'mastered';
@@ -46,7 +46,7 @@ export const QuestionList: React.FC<Props> = ({ category, cards, onBack, onReset
 
   const handleBatchReset = () => {
     if (selectedIds.size === 0) return;
-    if (window.confirm(`确定要重置选中的 ${selectedIds.size} 个题目吗？进度将丢失。`)) {
+    if (window.confirm(`确定要将选中的 ${selectedIds.size} 个题目重置为【未学习】状态吗？进度将丢失。`)) {
       onResetBatch(Array.from(selectedIds));
       setSelectedIds(new Set());
     }
@@ -61,31 +61,31 @@ export const QuestionList: React.FC<Props> = ({ category, cards, onBack, onReset
   };
 
   return (
-    <div className="animate-fade-in max-w-4xl mx-auto pb-20 pt-6">
-      {/* Header */}
-      <div className="flex items-end justify-between mb-8 px-2">
+    <div className="animate-fade-in max-w-4xl mx-auto h-full flex flex-col pb-2">
+      {/* Header - Increased z-index significantly to prevent clicks from being blocked */}
+      <div className="flex-none flex items-end justify-between mb-4 lg:mb-6 px-2 relative z-30">
         <div>
-          <h2 className="text-4xl font-serif font-bold text-slate-800 dark:text-slate-100">
+          <h2 className="text-3xl lg:text-4xl font-serif font-bold text-slate-800 dark:text-slate-100">
             {titles[category].zh}
           </h2>
-          <div className="text-slate-500 mt-2 font-medium font-serif italic">
+          <div className="text-slate-500 mt-2 font-medium font-serif italic text-sm lg:text-base">
              {cards.length} Cards
           </div>
         </div>
 
         {cards.length > 0 && isSelectionEnabled && (
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-3 lg:gap-4 pointer-events-auto">
             <button 
-              onClick={toggleSelectAll}
-              className="text-sm font-bold uppercase tracking-widest text-slate-500 hover:text-slate-800 dark:hover:text-slate-300 transition-colors"
+              onClick={(e) => { e.stopPropagation(); toggleSelectAll(); }}
+              className="text-xs lg:text-sm font-bold uppercase tracking-widest text-slate-500 hover:text-slate-800 dark:hover:text-slate-300 transition-colors"
             >
               {selectedIds.size === cards.length ? "取消全选" : "全选"}
             </button>
             
             {selectedIds.size > 0 && (
               <button 
-                onClick={handleBatchReset}
-                className="flex items-center gap-2 px-5 py-2 text-sm font-bold uppercase tracking-wider text-white bg-slate-800 dark:bg-sunrise-sun rounded-lg hover:bg-slate-700 dark:hover:bg-orange-600 transition-colors shadow-lg"
+                onClick={(e) => { e.stopPropagation(); handleBatchReset(); }}
+                className="flex items-center gap-2 px-4 py-1.5 lg:px-5 lg:py-2 text-xs lg:text-sm font-bold uppercase tracking-wider text-white bg-slate-800 dark:bg-sunrise-sun rounded-lg hover:bg-slate-700 dark:hover:bg-orange-600 transition-colors shadow-lg active:scale-95"
               >
                 重置 ({selectedIds.size})
               </button>
@@ -95,13 +95,13 @@ export const QuestionList: React.FC<Props> = ({ category, cards, onBack, onReset
       </div>
 
       {/* List Container */}
-      <div className="space-y-3">
+      <div className="flex-1 min-h-0 overflow-y-auto no-scrollbar mask-gradient relative z-10">
         {cards.length === 0 ? (
-          <div className="text-center py-32 opacity-40 glass rounded-3xl">
+          <div className="text-center py-32 opacity-40 glass rounded-3xl h-full flex items-center justify-center">
             <p className="font-serif italic text-2xl text-slate-500">暂无内容</p>
           </div>
         ) : (
-          <div className="bg-white/40 dark:bg-slate-900/40 backdrop-blur-xl rounded-[2rem] p-6 min-h-[50vh] border border-white/50 dark:border-white/5 shadow-xl shadow-slate-200/20 dark:shadow-black/20">
+          <div className="bg-white/40 dark:bg-slate-900/40 backdrop-blur-xl rounded-[2rem] p-4 lg:p-6 border border-white/50 dark:border-white/5 shadow-xl shadow-slate-200/20 dark:shadow-black/20 min-h-min">
             {cards.map((card, index) => {
               const isSelected = selectedIds.has(card.id);
               return (
@@ -110,7 +110,7 @@ export const QuestionList: React.FC<Props> = ({ category, cards, onBack, onReset
                   onClick={() => toggleSelect(card.id)}
                   style={{ animationDelay: `${index * 30}ms` }}
                   className={`
-                    animate-slide-up group relative flex items-center justify-between px-6 py-4 mb-3 transition-all duration-300 rounded-2xl border
+                    animate-slide-up group relative flex items-center justify-between px-4 py-4 lg:px-6 lg:py-5 mb-3 transition-all duration-300 rounded-2xl border
                     ${isSelected 
                       ? 'bg-sky-50 border-sky-200 dark:bg-slate-700 dark:border-slate-600 shadow-md translate-x-2' 
                       : 'bg-white/60 border-transparent hover:bg-white hover:border-slate-200 dark:bg-slate-800/40 dark:hover:bg-slate-800 dark:hover:border-slate-700 shadow-sm'
@@ -118,28 +118,28 @@ export const QuestionList: React.FC<Props> = ({ category, cards, onBack, onReset
                     ${isSelectionEnabled ? 'cursor-pointer' : ''}
                   `}
                 >
-                  <div className="flex items-center gap-6 flex-1 min-w-0">
+                  <div className="flex items-center gap-4 lg:gap-6 flex-1 min-w-0">
                     {isSelectionEnabled && (
                       <div className={`
-                        w-5 h-5 rounded-md border-2 flex items-center justify-center transition-all duration-200
+                        w-6 h-6 rounded-md border-2 flex items-center justify-center transition-all duration-200 flex-shrink-0
                         ${isSelected 
                           ? 'bg-sky-600 border-sky-600 dark:bg-sunrise-sun dark:border-sunrise-sun' 
                           : 'border-slate-300 dark:border-slate-600 group-hover:border-sky-400 dark:group-hover:border-sunrise-sun'
                         }
                       `}>
-                        {isSelected && <CheckSquare className="w-3.5 h-3.5 text-white" />}
+                        {isSelected && <CheckSquare className="w-4 h-4 text-white" />}
                       </div>
                     )}
 
                     <div className="flex-1 min-w-0">
                       <div className="flex items-baseline gap-3 mb-1.5">
-                        <span className="text-xs font-serif font-bold text-slate-400 opacity-60">#{card.id}</span>
-                        <h3 className={`text-lg font-medium ${isSelected ? 'text-sky-900 dark:text-sky-100' : 'text-slate-700 dark:text-slate-200'} truncate`}>
+                        <span className="text-sm font-serif font-bold text-slate-400 opacity-60 hidden sm:inline">#{card.id}</span>
+                        <h3 className={`text-lg lg:text-xl font-medium ${isSelected ? 'text-sky-900 dark:text-sky-100' : 'text-slate-700 dark:text-slate-200'} truncate`}>
                           {card.titleCn}
                         </h3>
                       </div>
                       <div className="flex gap-3">
-                         <span className={`px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider border ${getDifficultyStyle(card.difficulty)}`}>
+                         <span className={`px-2 py-0.5 rounded text-[11px] font-bold uppercase tracking-wider border ${getDifficultyStyle(card.difficulty)}`}>
                            {card.difficulty}
                          </span>
                       </div>
@@ -148,8 +148,7 @@ export const QuestionList: React.FC<Props> = ({ category, cards, onBack, onReset
 
                   <div className="flex items-center gap-8 pl-4">
                     {category !== 'new' && (
-                       <div className="text-xs font-bold uppercase tracking-wider text-slate-400 group-hover:text-slate-600 dark:group-hover:text-slate-300 transition-colors flex items-center gap-1.5">
-                         <Calendar className="w-3.5 h-3.5" />
+                       <div className="text-xs lg:text-sm font-bold uppercase tracking-wider text-slate-400 group-hover:text-slate-600 dark:group-hover:text-slate-300 transition-colors flex items-center gap-1.5 text-right sm:text-left">
                          {new Date(card.srs.dueDate).toLocaleDateString(undefined, { month: 'numeric', day: 'numeric' })}
                        </div>
                     )}
