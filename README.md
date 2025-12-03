@@ -1,3 +1,4 @@
+
 # LeetCode Flash - Hot 100 算法记忆卡片
 
 这是一款基于 React 的 LeetCode Hot 100 算法记忆卡片应用。
@@ -9,32 +10,85 @@
 
 ---
 
-## 如何在本地运行 (就像 EXE 软件一样)
+## 一、在本地作为网页运行
 
-由于这是一个纯静态的网页应用，你可以非常容易地在本地运行它。
-
-### 方法一：直接下载 (最简单)
-如果你不懂编程，只想用：
-1. 下载本项目所有代码。
-2. 确保你的电脑安装了 `Node.js`。
-3. 在项目文件夹运行以下命令打包：
-   ```bash
-   npm install
-   npm run build
-   ```
-4. 打包完成后，你会得到一个 `dist` 文件夹。
-5. 这个 `dist` 文件夹里的内容就是你的“软件”。你可以用浏览器打开 `index.html` (推荐使用 `http-server` 或 VSCode 的 Live Server 插件预览，直接双击 HTML 可能因浏览器安全策略导致部分图标加载失败)。
-
-### 方法二：开发模式
-1. 安装依赖：
+1. **安装依赖**：
+   确保安装 Node.js，然后在终端运行：
    ```bash
    npm install
    ```
-2. 启动服务：
+
+2. **启动开发服务器**：
    ```bash
    npm run dev
    ```
-3. 浏览器访问 `http://localhost:5173`。
+   浏览器访问 `http://localhost:5173`。
+
+3. **构建静态文件**：
+   ```bash
+   npm run build
+   ```
+   构建后的文件在 `dist` 目录，可以直接用浏览器打开 `index.html` 使用（部分浏览器可能限制本地文件访问，建议配合 Live Server）。
+
+---
+
+## 二、打包为电脑软件 (.exe)
+
+本项目已包含 `main.js` 配置文件，支持通过 **Electron** 打包为桌面应用。
+
+1. **安装 Electron 相关依赖**：
+   ```bash
+   npm install --save-dev electron electron-builder
+   ```
+
+2. **修改 `package.json`**：
+   请手动修改你的 `package.json` 文件，添加以下内容：
+   ```json
+   {
+     "main": "main.js",
+     "scripts": {
+       "dev": "vite",
+       "build": "tsc && vite build",
+       "electron:dev": "electron .",
+       "electron:build": "vite build && electron-builder"
+     }
+   }
+   ```
+
+3. **运行与打包**：
+   *   **测试运行**：`npm run electron:dev`
+   *   **打包 EXE**：`npm run electron:build`
+       打包完成后，检查项目下的 `dist` 文件夹，你会发现安装包。
+
+---
+
+## 三、打包为手机 App (Android/iOS)
+
+使用 **Capacitor** 将应用打包为原生 App。
+
+1. **安装 Capacitor**：
+   ```bash
+   npm install @capacitor/core @capacitor/cli @capacitor/android
+   npx cap init
+   ```
+   *(Web asset directory 请填入 `dist`)*
+
+2. **构建 Web 资源**：
+   ```bash
+   npm run build
+   ```
+
+3. **添加 Android 平台**：
+   ```bash
+   npx cap add android
+   npx cap sync
+   ```
+
+4. **生成 APK**：
+   *   你需要安装 **Android Studio**。
+   *   打开 Android Studio，选择项目里的 `android` 文件夹打开。
+   *   点击菜单栏 `Build` -> `Build Bundle(s) / APK(s)` -> `Build APK(s)`。
+   *   生成的 APK 即可安装到手机。
 
 ---
 
@@ -46,3 +100,5 @@
 - TypeScript
 - Tailwind CSS
 - Lucide React (图标)
+- Electron (桌面端支持)
+- Capacitor (移动端支持)
