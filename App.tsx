@@ -8,11 +8,12 @@ import { shuffleArray } from './utils/srs';
 import { Dashboard } from './components/Dashboard';
 import { Flashcard } from './components/Flashcard';
 import { QuestionList } from './components/QuestionList';
+import { SessionSummary } from './components/SessionSummary';
 import { Moon, Sun, Languages } from 'lucide-react';
 
 const SETTINGS_KEY = 'leetcode-flash-settings';
 
-type ViewMode = 'dashboard' | 'session' | 'library' | 'card-detail';
+type ViewMode = 'dashboard' | 'session' | 'summary' | 'library' | 'card-detail';
 
 const App: React.FC = () => {
   // Static data
@@ -26,6 +27,7 @@ const App: React.FC = () => {
   // Session State
   const [sessionQueue, setSessionQueue] = useState<Question[]>([]);
   const [currentIndex, setCurrentIndex] = useState(0);
+  const [sessionResults, setSessionResults] = useState<boolean[]>([]); // true = known, false = unknown
 
   // Library/Detail State
   const [selectedCard, setSelectedCard] = useState<Question | null>(null);
@@ -59,16 +61,21 @@ const App: React.FC = () => {
     const selection = shuffled.slice(0, count);
     setSessionQueue(selection);
     setCurrentIndex(0);
+    setSessionResults([]); // Reset results
     setViewMode('session');
   };
 
-  const handleNextInSession = () => {
+  const handleAnswerInSession = (known: boolean) => {
+    // Record result
+    const newResults = [...sessionResults, known];
+    setSessionResults(newResults);
+
+    // Move next or finish
     if (currentIndex < sessionQueue.length - 1) {
       setCurrentIndex(prev => prev + 1);
     } else {
-      // Session finished
-      setViewMode('dashboard');
-      setSessionQueue([]);
+      // Session finished, go to summary
+      setViewMode('summary');
     }
   };
 
@@ -89,6 +96,7 @@ const App: React.FC = () => {
   const backToDashboard = () => {
     setViewMode('dashboard');
     setSessionQueue([]);
+    setSessionResults([]);
     setSelectedCard(null);
   };
 
@@ -116,13 +124,22 @@ const App: React.FC = () => {
           <div className="h-full flex flex-col animate-fade-in">
              <Flashcard 
                card={activeCard} 
-               onNext={handleNextInSession}
+               onAnswer={handleAnswerInSession}
                lang={lang} 
                toggleLang={toggleLang}
                isSession={true}
                progressText={`${currentIndex + 1} / ${sessionQueue.length}`}
              />
           </div>
+        );
+
+      case 'summary':
+        return (
+          <SessionSummary 
+            results={sessionResults}
+            onHome={backToDashboard}
+            lang={lang}
+          />
         );
 
       case 'library':

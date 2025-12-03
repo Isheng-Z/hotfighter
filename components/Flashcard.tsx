@@ -1,15 +1,16 @@
 
 import React, { useState } from 'react';
 import { Question, Difficulty, Language } from '../types';
-import { Brain, ArrowRight, Languages, ExternalLink, ArrowLeft } from 'lucide-react';
+import { Brain, ArrowRight, Languages, ExternalLink, ArrowLeft, Check, X } from 'lucide-react';
 
 interface Props {
   card: Question;
-  onNext?: () => void;
+  onNext?: () => void; // Used for library mode
+  onAnswer?: (known: boolean) => void; // Used for session mode
   onBack?: () => void;
   lang: Language;
   toggleLang: () => void;
-  isSession: boolean; // True if in practice mode, false if viewing from library
+  isSession: boolean; 
   progressText?: string;
 }
 
@@ -20,13 +21,13 @@ const DifficultyBadge = ({ level }: { level: Difficulty }) => {
     [Difficulty.Hard]: 'text-rose-700 bg-rose-50 border-rose-200 dark:text-rose-300 dark:bg-rose-900/30 dark:border-rose-800',
   };
   return (
-    <span className={`px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest border ${styles[level]}`}>
+    <span className={`px-2 py-0.5 lg:px-3 lg:py-1 rounded-full text-[10px] font-bold uppercase tracking-widest border ${styles[level]}`}>
       {level}
     </span>
   );
 };
 
-export const Flashcard: React.FC<Props> = ({ card, onNext, onBack, lang, toggleLang, isSession, progressText }) => {
+export const Flashcard: React.FC<Props> = ({ card, onNext, onAnswer, onBack, lang, toggleLang, isSession, progressText }) => {
   const [isFlipped, setIsFlipped] = useState(false);
 
   React.useEffect(() => {
@@ -50,7 +51,9 @@ export const Flashcard: React.FC<Props> = ({ card, onNext, onBack, lang, toggleL
       viewSolution: "Official Solution",
       next: "Next Question",
       back: "Back to List",
-      finish: "Finish Session"
+      finish: "Finish Session",
+      known: "Mastered",
+      unknown: "Need Review"
     },
     zh: {
       showAnswer: "查看答案",
@@ -63,7 +66,9 @@ export const Flashcard: React.FC<Props> = ({ card, onNext, onBack, lang, toggleL
       viewSolution: "官方题解",
       next: "下一题",
       back: "返回列表",
-      finish: "结束练习"
+      finish: "结束练习",
+      known: "已掌握",
+      unknown: "需复习"
     }
   };
 
@@ -88,14 +93,14 @@ export const Flashcard: React.FC<Props> = ({ card, onNext, onBack, lang, toggleL
       >
         {/* FRONT */}
         <div 
-          className="absolute w-full h-full flex flex-col rounded-[2.5rem] overflow-hidden bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl border border-white dark:border-slate-700 shadow-2xl shadow-slate-200/40 dark:shadow-black/60"
+          className="absolute w-full h-full flex flex-col rounded-[2rem] lg:rounded-[2.5rem] overflow-hidden bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl border border-white dark:border-slate-700 shadow-2xl shadow-slate-200/40 dark:shadow-black/60"
           style={{ backfaceVisibility: 'hidden', WebkitBackfaceVisibility: 'hidden', zIndex: isFlipped ? 0 : 2 }}
         >
           <div className="absolute inset-0 opacity-[0.03] pointer-events-none bg-[url('https://www.transparenttextures.com/patterns/cream-paper.png')] mix-blend-multiply dark:mix-blend-overlay"></div>
 
-          <div className="px-6 py-6 lg:px-10 lg:pt-10 lg:pb-6 flex-1 flex flex-col relative z-10">
-            <div className="flex justify-between items-start mb-6 lg:mb-8">
-               <span className="text-6xl lg:text-8xl font-serif font-black text-slate-100 dark:text-slate-800/50 select-none absolute -top-4 -right-4 -z-10 pointer-events-none">
+          <div className="px-5 py-5 lg:px-10 lg:pt-10 lg:pb-6 flex-1 flex flex-col relative z-10 min-h-0">
+            <div className="flex justify-between items-start mb-4 lg:mb-8 flex-none">
+               <span className="text-5xl lg:text-8xl font-serif font-black text-slate-100 dark:text-slate-800/50 select-none absolute -top-4 -right-4 -z-10 pointer-events-none">
                  {card.id}
                </span>
                <div className="flex gap-2 relative z-10">
@@ -103,52 +108,52 @@ export const Flashcard: React.FC<Props> = ({ card, onNext, onBack, lang, toggleL
                </div>
                <div className="flex gap-2">
                  {progressText && (
-                   <span className="px-3 py-1 bg-slate-100 dark:bg-slate-800 rounded-full text-xs font-mono text-slate-500 self-center">
+                   <span className="px-2 py-0.5 lg:px-3 lg:py-1 bg-slate-100 dark:bg-slate-800 rounded-full text-[10px] lg:text-xs font-mono text-slate-500 self-center">
                      {progressText}
                    </span>
                  )}
-                 <button onClick={(e) => { e.stopPropagation(); toggleLang(); }} className="relative z-10 p-2 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-full transition-colors text-slate-400">
-                     <Languages className="w-5 h-5" />
+                 <button onClick={(e) => { e.stopPropagation(); toggleLang(); }} className="relative z-10 p-1.5 lg:p-2 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-full transition-colors text-slate-400">
+                     <Languages className="w-4 h-4 lg:w-5 lg:h-5" />
                  </button>
                </div>
             </div>
 
-            <h2 className="text-2xl lg:text-4xl font-serif font-bold text-slate-800 dark:text-slate-100 mb-4 lg:mb-6 leading-tight relative z-10">
+            <h2 className="text-xl lg:text-3xl font-serif font-bold text-slate-800 dark:text-slate-100 mb-3 lg:mb-6 leading-tight relative z-10 flex-none">
               {title}
             </h2>
 
-            <div className="flex flex-wrap gap-2 mb-6 lg:mb-10 relative z-10">
+            <div className="flex flex-wrap gap-1.5 lg:gap-2 mb-4 lg:mb-10 relative z-10 flex-none">
                {card.tags.map(tag => (
-                 <span key={tag} className="text-[10px] font-bold text-slate-500 uppercase tracking-wider bg-slate-100 dark:bg-slate-800 px-3 py-1.5 rounded-full">
+                 <span key={tag} className="text-[9px] lg:text-[10px] font-bold text-slate-500 uppercase tracking-wider bg-slate-100 dark:bg-slate-800 px-2 py-1 lg:px-3 lg:py-1.5 rounded-full">
                    {tag}
                  </span>
                ))}
             </div>
 
-            <div className="flex-1 overflow-y-auto pr-2 relative z-10 no-scrollbar space-y-6 lg:space-y-8">
-               <p className="text-xl lg:text-2xl text-slate-700 dark:text-slate-200 leading-relaxed font-sans font-normal">
+            <div className="flex-1 overflow-y-auto pr-1 lg:pr-2 relative z-10 no-scrollbar space-y-4 lg:space-y-8 min-h-0">
+               <p className="text-base lg:text-xl text-slate-700 dark:text-slate-200 leading-relaxed font-sans font-normal">
                  {desc}
                </p>
 
-               <div className="bg-slate-50/80 dark:bg-slate-800/50 rounded-2xl p-4 lg:p-6 border border-slate-100 dark:border-slate-700/50">
-                  <div className="space-y-4 font-mono text-base lg:text-lg text-slate-700 dark:text-slate-300">
-                    <div className="flex flex-col gap-2">
-                      <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">{text.input}</span>
-                      <span className="bg-white dark:bg-slate-900 px-4 py-3 rounded-lg border border-slate-200 dark:border-slate-700 shadow-sm overflow-x-auto">{card.exampleInput}</span>
+               <div className="bg-slate-50/80 dark:bg-slate-800/50 rounded-xl lg:rounded-2xl p-3 lg:p-6 border border-slate-100 dark:border-slate-700/50">
+                  <div className="space-y-3 lg:space-y-4 font-mono text-sm lg:text-base text-slate-700 dark:text-slate-300">
+                    <div className="flex flex-col gap-1.5 lg:gap-2">
+                      <span className="text-[9px] lg:text-[10px] font-bold text-slate-400 uppercase tracking-widest">{text.input}</span>
+                      <span className="bg-white dark:bg-slate-900 px-3 py-2 lg:px-4 lg:py-3 rounded-lg border border-slate-200 dark:border-slate-700 shadow-sm overflow-x-auto whitespace-pre-wrap break-words">{card.exampleInput}</span>
                     </div>
-                    <div className="flex flex-col gap-2">
-                      <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">{text.output}</span>
-                      <span className="bg-white dark:bg-slate-900 px-4 py-3 rounded-lg border border-slate-200 dark:border-slate-700 shadow-sm overflow-x-auto">{card.exampleOutput}</span>
+                    <div className="flex flex-col gap-1.5 lg:gap-2">
+                      <span className="text-[9px] lg:text-[10px] font-bold text-slate-400 uppercase tracking-widest">{text.output}</span>
+                      <span className="bg-white dark:bg-slate-900 px-3 py-2 lg:px-4 lg:py-3 rounded-lg border border-slate-200 dark:border-slate-700 shadow-sm overflow-x-auto whitespace-pre-wrap break-words">{card.exampleOutput}</span>
                     </div>
                   </div>
                </div>
             </div>
           </div>
 
-          <div className="p-6 lg:p-8 bg-white/50 dark:bg-slate-900/50 border-t border-slate-100 dark:border-slate-800 backdrop-blur-md">
+          <div className="p-4 lg:p-8 bg-white/50 dark:bg-slate-900/50 border-t border-slate-100 dark:border-slate-800 backdrop-blur-md flex-none mt-auto">
             <button 
               onClick={handleFlip}
-              className="w-full py-3 lg:py-4 bg-slate-800 dark:bg-sunrise-sun text-white rounded-xl font-serif font-bold text-lg hover:shadow-xl hover:shadow-slate-800/20 dark:hover:shadow-orange-900/30 transition-all hover:-translate-y-1"
+              className="w-full py-3 lg:py-4 bg-slate-800 dark:bg-sunrise-sun text-white rounded-xl font-serif font-bold text-base lg:text-lg hover:shadow-xl hover:shadow-slate-800/20 dark:hover:shadow-orange-900/30 transition-all hover:-translate-y-1"
             >
               {text.showAnswer}
             </button>
@@ -157,7 +162,7 @@ export const Flashcard: React.FC<Props> = ({ card, onNext, onBack, lang, toggleL
 
         {/* BACK */}
         <div 
-          className="absolute w-full h-full flex flex-col rounded-[2.5rem] overflow-hidden bg-white/90 dark:bg-slate-900/90 backdrop-blur-xl border border-white dark:border-slate-700 shadow-2xl shadow-slate-200/40 dark:shadow-black/60"
+          className="absolute w-full h-full flex flex-col rounded-[2rem] lg:rounded-[2.5rem] overflow-hidden bg-white/90 dark:bg-slate-900/90 backdrop-blur-xl border border-white dark:border-slate-700 shadow-2xl shadow-slate-200/40 dark:shadow-black/60"
           style={{
             backfaceVisibility: 'hidden',
             WebkitBackfaceVisibility: 'hidden',
@@ -167,32 +172,32 @@ export const Flashcard: React.FC<Props> = ({ card, onNext, onBack, lang, toggleL
         >
           <div className="absolute inset-0 opacity-[0.03] pointer-events-none bg-[url('https://www.transparenttextures.com/patterns/cream-paper.png')] mix-blend-multiply dark:mix-blend-overlay"></div>
 
-          <div className="px-5 py-4 lg:px-8 lg:py-5 border-b border-slate-100 dark:border-slate-800 flex justify-between items-center bg-slate-50/50 dark:bg-slate-800/30">
-            <h3 className="font-serif font-bold text-slate-500 truncate max-w-[80%] opacity-60 text-sm lg:text-base">{title}</h3>
+          <div className="px-4 py-3 lg:px-8 lg:py-5 border-b border-slate-100 dark:border-slate-800 flex justify-between items-center bg-slate-50/50 dark:bg-slate-800/30 flex-none">
+            <h3 className="font-serif font-bold text-slate-500 truncate max-w-[80%] opacity-60 text-xs lg:text-base">{title}</h3>
             <button onClick={(e) => { e.stopPropagation(); toggleLang(); }} className="text-slate-400 hover:text-slate-600">
-              <Languages className="w-5 h-5" />
+              <Languages className="w-4 h-4 lg:w-5 lg:h-5" />
             </button>
           </div>
 
-          <div className="flex-1 overflow-y-auto px-6 py-6 lg:px-8 lg:py-8 space-y-6 lg:space-y-8 no-scrollbar relative z-10">
+          <div className="flex-1 overflow-y-auto px-5 py-5 lg:px-8 lg:py-8 space-y-5 lg:space-y-8 no-scrollbar relative z-10 min-h-0">
             <div>
-              <h3 className="text-xs font-bold text-indigo-600 dark:text-sunrise-sun uppercase tracking-widest mb-3 lg:mb-4 flex items-center gap-2">
-                <Brain className="w-4 h-4" />
+              <h3 className="text-[10px] lg:text-xs font-bold text-indigo-600 dark:text-sunrise-sun uppercase tracking-widest mb-2 lg:mb-4 flex items-center gap-2">
+                <Brain className="w-3 h-3 lg:w-4 lg:h-4" />
                 {text.coreIdea}
               </h3>
-              <p className="text-2xl lg:text-3xl text-slate-800 dark:text-slate-100 leading-relaxed font-serif font-medium">
+              <p className="text-lg lg:text-2xl text-slate-800 dark:text-slate-100 leading-relaxed font-serif font-medium">
                 {idea}
               </p>
             </div>
 
             <div className="grid grid-cols-2 gap-3 lg:gap-4">
-               <div className="p-4 lg:p-5 rounded-2xl bg-orange-50 dark:bg-orange-900/20 border border-orange-100 dark:border-orange-900/40">
-                 <div className="text-[10px] font-bold text-orange-600 dark:text-orange-400 uppercase tracking-widest mb-1 lg:mb-2">{text.timeComp}</div>
-                 <div className="font-mono font-bold text-base lg:text-xl text-slate-700 dark:text-slate-200">{card.timeComplexity}</div>
+               <div className="p-3 lg:p-5 rounded-xl lg:rounded-2xl bg-orange-50 dark:bg-orange-900/20 border border-orange-100 dark:border-orange-900/40">
+                 <div className="text-[9px] lg:text-[10px] font-bold text-orange-600 dark:text-orange-400 uppercase tracking-widest mb-1 lg:mb-2">{text.timeComp}</div>
+                 <div className="font-mono font-bold text-sm lg:text-lg text-slate-700 dark:text-slate-200">{card.timeComplexity}</div>
                </div>
-               <div className="p-4 lg:p-5 rounded-2xl bg-blue-50 dark:bg-blue-900/20 border border-blue-100 dark:border-blue-900/40">
-                 <div className="text-[10px] font-bold text-blue-600 dark:text-blue-400 uppercase tracking-widest mb-1 lg:mb-2">{text.spaceComp}</div>
-                 <div className="font-mono font-bold text-base lg:text-xl text-slate-700 dark:text-slate-200">{card.spaceComplexity}</div>
+               <div className="p-3 lg:p-5 rounded-xl lg:rounded-2xl bg-blue-50 dark:bg-blue-900/20 border border-blue-100 dark:border-blue-900/40">
+                 <div className="text-[9px] lg:text-[10px] font-bold text-blue-600 dark:text-blue-400 uppercase tracking-widest mb-1 lg:mb-2">{text.spaceComp}</div>
+                 <div className="font-mono font-bold text-sm lg:text-lg text-slate-700 dark:text-slate-200">{card.spaceComplexity}</div>
                </div>
             </div>
 
@@ -200,28 +205,37 @@ export const Flashcard: React.FC<Props> = ({ card, onNext, onBack, lang, toggleL
               href={solutionUrl}
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex items-center gap-2 text-slate-500 hover:text-indigo-600 dark:hover:text-sunrise-sun transition-colors group px-4 py-2 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-800"
+              className="inline-flex items-center gap-2 text-slate-500 hover:text-indigo-600 dark:hover:text-sunrise-sun transition-colors group px-3 py-2 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-800 mb-2"
             >
-              <ExternalLink className="w-4 h-4" />
-              <span className="font-medium text-sm border-b border-transparent group-hover:border-current transition-all">{text.viewSolution}</span>
+              <ExternalLink className="w-3 h-3 lg:w-4 lg:h-4" />
+              <span className="font-medium text-xs lg:text-sm border-b border-transparent group-hover:border-current transition-all">{text.viewSolution}</span>
             </a>
           </div>
 
-          <div className="p-4 lg:p-6 bg-slate-50/80 dark:bg-slate-950/50 border-t border-slate-100 dark:border-slate-800 backdrop-blur-md">
+          <div className="p-4 lg:p-6 bg-slate-50/80 dark:bg-slate-950/50 border-t border-slate-100 dark:border-slate-800 backdrop-blur-md flex-none mt-auto">
              {isSession ? (
-               <button 
-                 onClick={onNext}
-                 className="w-full flex items-center justify-center gap-2 py-3 lg:py-4 rounded-xl font-serif font-bold text-lg transition-all bg-emerald-600 hover:bg-emerald-700 text-white shadow-lg shadow-emerald-600/20 hover:shadow-emerald-600/30 hover:-translate-y-1 active:scale-95"
-               >
-                 <span>{text.next}</span>
-                 <ArrowRight className="w-5 h-5" />
-               </button>
+               <div className="grid grid-cols-2 gap-3 lg:gap-4">
+                 <button 
+                   onClick={() => onAnswer?.(false)}
+                   className="flex items-center justify-center gap-2 py-3 lg:py-4 rounded-xl font-serif font-bold text-base lg:text-lg transition-all bg-rose-100 hover:bg-rose-200 text-rose-700 dark:bg-rose-900/40 dark:hover:bg-rose-900/60 dark:text-rose-200 active:scale-95"
+                 >
+                   <X className="w-4 h-4 lg:w-5 lg:h-5" />
+                   <span>{text.unknown}</span>
+                 </button>
+                 <button 
+                   onClick={() => onAnswer?.(true)}
+                   className="flex items-center justify-center gap-2 py-3 lg:py-4 rounded-xl font-serif font-bold text-base lg:text-lg transition-all bg-emerald-600 hover:bg-emerald-700 text-white shadow-lg shadow-emerald-600/20 hover:shadow-emerald-600/30 active:scale-95"
+                 >
+                   <span>{text.known}</span>
+                   <Check className="w-4 h-4 lg:w-5 lg:h-5" />
+                 </button>
+               </div>
              ) : (
                <button 
                  onClick={onBack}
-                 className="w-full flex items-center justify-center gap-2 py-3 lg:py-4 rounded-xl font-serif font-bold text-lg transition-all bg-slate-200 dark:bg-slate-800 hover:bg-slate-300 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200"
+                 className="w-full flex items-center justify-center gap-2 py-3 lg:py-4 rounded-xl font-serif font-bold text-base lg:text-lg transition-all bg-slate-200 dark:bg-slate-800 hover:bg-slate-300 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200"
                >
-                 <ArrowLeft className="w-5 h-5" />
+                 <ArrowLeft className="w-4 h-4 lg:w-5 lg:h-5" />
                  <span>{text.back}</span>
                </button>
              )}
