@@ -7,28 +7,54 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+    <!-- Import Noto Serif SC and Noto Sans SC for better Chinese support, plus Playfair for English numbers/headers -->
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700&family=Noto+Serif+SC:wght@400;600;700&family=Playfair+Display:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
     <script>
       tailwind.config = {
         darkMode: 'class',
         theme: {
           extend: {
             fontFamily: {
-              sans: ['Roboto', '-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'Helvetica', 'Arial', 'sans-serif'],
-              display: ['"Google Sans"', 'Roboto', 'sans-serif'],
-              mono: ['"Roboto Mono"', 'Menlo', 'Monaco', 'Consolas', 'monospace'],
+              // Body text: Clean Sans-serif
+              sans: ['"Noto Sans SC"', '-apple-system', 'BlinkMacSystemFont', 'sans-serif'],
+              // Headers: Elegant Serif
+              serif: ['"Playfair Display"', '"Noto Serif SC"', 'serif'],
+            },
+            animation: {
+              'fade-in': 'fadeIn 0.8s ease-out forwards',
+              'slide-up': 'slideUp 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards',
+              'float': 'float 6s ease-in-out infinite',
+            },
+            keyframes: {
+              fadeIn: {
+                '0%': { opacity: '0' },
+                '100%': { opacity: '1' },
+              },
+              slideUp: {
+                '0%': { opacity: '0', transform: 'translateY(20px)' },
+                '100%': { opacity: '1', transform: 'translateY(0)' },
+              },
+              float: {
+                '0%, 100%': { transform: 'translateY(0)' },
+                '50%': { transform: 'translateY(-5px)' },
+              }
             },
             colors: {
-              google: {
-                blue: '#1a73e8',
-                blueDark: '#8ab4f8',
-                red: '#ea4335',
-                yellow: '#fbbc04',
-                green: '#34a853',
-                gray: '#f1f3f4',
-                darkGray: '#202124',
-                surface: '#ffffff',
-                surfaceDark: '#303134',
+              // Woman with a Parasol (Day)
+              parasol: {
+                sky: '#87CEEB', // Sky blue
+                cloud: '#F0F8FF', // Alice blue
+                grass: '#8FBC8F', // Dark sea green
+                dress: '#FFFAF0', // Floral white
+                shadow: '#778899', // Light slate gray
+              },
+              // Impression, Sunrise (Night/Dark)
+              sunrise: {
+                fog: '#4A646C', // Muted Teal/Grey
+                sun: '#FF7F50', // Coral/Orange
+                water: '#2F4F4F', // Dark Slate Gray
+                reflection: '#E9967A', // Dark Salmon
+                silhoutte: '#1a202c', // Dark Blue Grey
               }
             }
           }
@@ -37,17 +63,66 @@
     </script>
     <style>
       body {
-        font-family: 'Roboto', sans-serif;
+        font-family: 'Noto Sans SC', sans-serif;
         -webkit-font-smoothing: antialiased;
+        transition: background 1s ease-in-out;
       }
-      /* Material 3 Ripple effect simulation classes could go here, relying on standard active states for now */
       
+      /* Day: Woman with a Parasol - Swirling Sky and Grass */
+      .monet-bg {
+        background: linear-gradient(170deg, #E0F7FA 0%, #E3F2FD 40%, #F1F8E9 100%);
+        background-attachment: fixed;
+      }
+
+      /* Night: Impression, Sunrise - Foggy Harbor and Orange Sun */
+      .dark .monet-bg {
+        background: linear-gradient(180deg, #37474F 0%, #455A64 60%, #546E7A 100%);
+        background-attachment: fixed;
+      }
+
+      /* Texture Overlay - Canvas Grain */
+      .canvas-texture {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        pointer-events: none;
+        z-index: -1;
+        opacity: 0.3;
+        background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 400 400' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='0.15'/%3E%3C/svg%3E");
+        mix-blend-mode: overlay;
+      }
+
+      /* Glass Card */
+      .glass {
+        background: rgba(255, 255, 255, 0.65);
+        backdrop-filter: blur(16px);
+        -webkit-backdrop-filter: blur(16px);
+        border: 1px solid rgba(255, 255, 255, 0.8);
+        box-shadow: 0 10px 40px -10px rgba(0, 0, 0, 0.05);
+      }
+      
+      .dark .glass {
+        /* Foggy glass for night */
+        background: rgba(55, 71, 79, 0.5); 
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        box-shadow: 0 10px 40px -10px rgba(0, 0, 0, 0.4);
+      }
+
+      /* Scrollbar */
+      ::-webkit-scrollbar {
+        width: 6px;
+      }
+      ::-webkit-scrollbar-track {
+        background: transparent;
+      }
+      ::-webkit-scrollbar-thumb {
+        background: rgba(156, 163, 175, 0.3);
+        border-radius: 10px;
+      }
       .no-scrollbar::-webkit-scrollbar {
         display: none;
-      }
-      .no-scrollbar {
-        -ms-overflow-style: none;
-        scrollbar-width: none;
       }
     </style>
   <script type="importmap">
@@ -64,7 +139,8 @@
 }
 </script>
 </head>
-  <body class="bg-[#f0f2f5] dark:bg-[#202124] text-slate-900 dark:text-gray-100 transition-colors duration-200">
-    <div id="root"></div>
+  <body class="monet-bg text-slate-700 dark:text-slate-300 min-h-screen selection:bg-parasol-sky selection:text-white dark:selection:bg-sunrise-sun dark:selection:text-white">
+    <div class="canvas-texture"></div>
+    <div id="root" class="relative z-10"></div>
   </body>
 </html>

@@ -11,12 +11,12 @@ interface Props {
 
 const DifficultyBadge = ({ level }: { level: Difficulty }) => {
   const styles = {
-    [Difficulty.Easy]: 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300',
-    [Difficulty.Medium]: 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-300',
-    [Difficulty.Hard]: 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-300',
+    [Difficulty.Easy]: 'text-emerald-700 bg-emerald-50 border-emerald-200 dark:text-emerald-300 dark:bg-emerald-900/30 dark:border-emerald-800',
+    [Difficulty.Medium]: 'text-amber-700 bg-amber-50 border-amber-200 dark:text-orange-300 dark:bg-orange-900/30 dark:border-orange-800', // Orange for sunrise theme
+    [Difficulty.Hard]: 'text-rose-700 bg-rose-50 border-rose-200 dark:text-rose-300 dark:bg-rose-900/30 dark:border-rose-800',
   };
   return (
-    <span className={`px-3 py-1 rounded-full text-xs font-medium tracking-wide ${styles[level]}`}>
+    <span className={`px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest border ${styles[level]}`}>
       {level}
     </span>
   );
@@ -47,7 +47,7 @@ export const Flashcard: React.FC<Props> = ({ card, onRate, lang, toggleLang }) =
       coreIdea: "Core Idea",
       timeComp: "Time Complexity",
       spaceComp: "Space Complexity",
-      viewSolution: "View Official Solution (Video/PPT)",
+      viewSolution: "Official Solution",
       problem: "Problem",
       forgot: "Forgot",
       hazy: "Hazy",
@@ -61,11 +61,11 @@ export const Flashcard: React.FC<Props> = ({ card, onRate, lang, toggleLang }) =
       coreIdea: "核心思路",
       timeComp: "时间复杂度",
       spaceComp: "空间复杂度",
-      viewSolution: "查看官方图解/视频",
-      problem: "题目描述",
-      forgot: "忘记了",
-      hazy: "有印象",
-      mastered: "已掌握"
+      viewSolution: "官方题解",
+      problem: "题目",
+      forgot: "忘记",
+      hazy: "模糊",
+      mastered: "熟记"
     }
   };
 
@@ -74,77 +74,77 @@ export const Flashcard: React.FC<Props> = ({ card, onRate, lang, toggleLang }) =
   const desc = lang === 'zh' ? card.descriptionCn : card.description;
   const idea = lang === 'zh' ? card.solutionIdeaCn : card.solutionIdea;
 
-  // Construct URL based on language
   const solutionUrl = lang === 'zh' 
     ? `https://leetcode.cn/problems/${card.slug}/solutions/`
     : `https://leetcode.com/problems/${card.slug}/editorial/`;
 
   return (
-    <div className="w-full max-w-2xl mx-auto h-[680px] relative select-none font-sans" style={{ perspective: '1200px' }}>
+    <div className="w-full max-w-2xl mx-auto h-[700px] relative select-none" style={{ perspective: '2500px' }}>
       <div 
-        className="relative w-full h-full duration-500 transition-transform"
+        className="relative w-full h-full duration-700 ease-out-back"
         style={{
           transformStyle: 'preserve-3d',
           transform: isFlipped ? 'rotateY(180deg)' : 'rotateY(0deg)',
+          transitionTimingFunction: 'cubic-bezier(0.34, 1.56, 0.64, 1)' // Bouncy flip
         }}
       >
         {/* FRONT */}
         <div 
-          className="absolute w-full h-full flex flex-col bg-white dark:bg-[#303134] rounded-3xl shadow-lg border border-slate-100 dark:border-white/5 overflow-hidden"
-          style={{
-            backfaceVisibility: 'hidden',
-            WebkitBackfaceVisibility: 'hidden',
-            zIndex: isFlipped ? 0 : 2,
-            pointerEvents: isFlipped ? 'none' : 'auto',
-          }}
+          className="absolute w-full h-full flex flex-col rounded-[2.5rem] overflow-hidden bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl border border-white dark:border-slate-700 shadow-2xl shadow-slate-200/40 dark:shadow-black/60"
+          style={{ backfaceVisibility: 'hidden', WebkitBackfaceVisibility: 'hidden', zIndex: isFlipped ? 0 : 2 }}
         >
-          {/* Header */}
-          <div className="p-8 pb-4">
-            <div className="flex justify-between items-center mb-4">
-              <div className="flex items-center gap-3">
-                 <span className="text-sm font-mono text-slate-400">#{card.id}</span>
+          {/* Paper Texture Overlay */}
+          <div className="absolute inset-0 opacity-[0.03] pointer-events-none bg-[url('https://www.transparenttextures.com/patterns/cream-paper.png')] mix-blend-multiply dark:mix-blend-overlay"></div>
+
+          <div className="px-10 pt-10 pb-6 flex-1 flex flex-col relative z-10">
+            <div className="flex justify-between items-start mb-8">
+               <span className="text-8xl font-serif font-black text-slate-100 dark:text-slate-800/50 select-none absolute -top-4 -right-4 -z-10 pointer-events-none">
+                 {card.id}
+               </span>
+               <div className="flex gap-2 relative z-10">
                  <DifficultyBadge level={card.difficulty} />
-              </div>
-              <button onClick={(e) => { e.stopPropagation(); toggleLang(); }} className="text-slate-400 hover:text-google-blue transition-colors">
-                <Languages className="w-5 h-5" />
-              </button>
+               </div>
+               <button onClick={(e) => { e.stopPropagation(); toggleLang(); }} className="relative z-10 p-2 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-full transition-colors text-slate-400">
+                   <Languages className="w-5 h-5" />
+               </button>
             </div>
-            <h2 className="text-3xl font-display font-medium text-slate-900 dark:text-slate-100 mb-3">{title}</h2>
-            <div className="flex flex-wrap gap-2">
+
+            <h2 className="text-4xl font-serif font-bold text-slate-800 dark:text-slate-100 mb-6 leading-tight relative z-10">
+              {title}
+            </h2>
+
+            <div className="flex flex-wrap gap-2 mb-10 relative z-10">
                {card.tags.map(tag => (
-                 <span key={tag} className="text-xs font-medium text-slate-500 dark:text-slate-400 bg-slate-100 dark:bg-white/5 px-2 py-1 rounded-md">
+                 <span key={tag} className="text-[10px] font-bold text-slate-500 uppercase tracking-wider bg-slate-100 dark:bg-slate-800 px-3 py-1.5 rounded-full">
                    {tag}
                  </span>
                ))}
             </div>
+
+            <div className="flex-1 overflow-y-auto pr-2 relative z-10 no-scrollbar space-y-8">
+               <p className="text-xl text-slate-600 dark:text-slate-300 leading-relaxed font-sans font-light">
+                 {desc}
+               </p>
+
+               <div className="bg-slate-50/80 dark:bg-slate-800/50 rounded-2xl p-6 border border-slate-100 dark:border-slate-700/50">
+                  <div className="space-y-4 font-mono text-sm text-slate-600 dark:text-slate-400">
+                    <div className="flex flex-col gap-2">
+                      <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">{text.input}</span>
+                      <span className="bg-white dark:bg-slate-900 px-4 py-3 rounded-lg border border-slate-200 dark:border-slate-700 shadow-sm">{card.exampleInput}</span>
+                    </div>
+                    <div className="flex flex-col gap-2">
+                      <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">{text.output}</span>
+                      <span className="bg-white dark:bg-slate-900 px-4 py-3 rounded-lg border border-slate-200 dark:border-slate-700 shadow-sm">{card.exampleOutput}</span>
+                    </div>
+                  </div>
+               </div>
+            </div>
           </div>
 
-          <div className="flex-1 overflow-y-auto px-8 pb-6 space-y-8 no-scrollbar">
-             <div>
-               <h3 className="text-xs font-bold text-google-blue uppercase tracking-wider mb-2">{text.problem}</h3>
-               <p className="text-lg text-slate-700 dark:text-slate-300 leading-relaxed">{desc}</p>
-             </div>
-
-             <div className="bg-slate-50 dark:bg-black/20 rounded-2xl p-6">
-                <h3 className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-4">{text.example}</h3>
-                <div className="space-y-3 font-mono text-sm">
-                  <div>
-                    <span className="text-slate-400 mr-2 text-xs">{text.input}:</span>
-                    <span className="text-slate-800 dark:text-slate-200">{card.exampleInput}</span>
-                  </div>
-                  <div>
-                    <span className="text-slate-400 mr-2 text-xs">{text.output}:</span>
-                    <span className="text-slate-800 dark:text-slate-200">{card.exampleOutput}</span>
-                  </div>
-                </div>
-             </div>
-          </div>
-
-          {/* Action */}
-          <div className="p-8 pt-4 bg-white dark:bg-[#303134]">
+          <div className="p-8 bg-white/50 dark:bg-slate-900/50 border-t border-slate-100 dark:border-slate-800 backdrop-blur-md">
             <button 
               onClick={handleFlip}
-              className="w-full h-14 bg-google-blue hover:bg-blue-600 text-white rounded-full font-medium text-lg shadow-md hover:shadow-lg transition-all flex items-center justify-center gap-2"
+              className="w-full py-4 bg-slate-800 dark:bg-sunrise-sun text-white rounded-xl font-serif font-bold text-lg hover:shadow-xl hover:shadow-slate-800/20 dark:hover:shadow-orange-900/30 transition-all hover:-translate-y-1"
             >
               {text.showAnswer}
             </button>
@@ -153,85 +153,74 @@ export const Flashcard: React.FC<Props> = ({ card, onRate, lang, toggleLang }) =
 
         {/* BACK */}
         <div 
-          className="absolute w-full h-full flex flex-col bg-white dark:bg-[#303134] rounded-3xl shadow-lg border border-slate-100 dark:border-white/5 overflow-hidden"
+          className="absolute w-full h-full flex flex-col rounded-[2.5rem] overflow-hidden bg-white/90 dark:bg-slate-900/90 backdrop-blur-xl border border-white dark:border-slate-700 shadow-2xl shadow-slate-200/40 dark:shadow-black/60"
           style={{
             backfaceVisibility: 'hidden',
             WebkitBackfaceVisibility: 'hidden',
             zIndex: isFlipped ? 2 : 0,
-            pointerEvents: isFlipped ? 'auto' : 'none',
             transform: 'rotateY(180deg)',
           }}
         >
-          {/* Header */}
-          <div className="px-8 py-6 border-b border-slate-100 dark:border-white/5 flex justify-between items-center">
-            <h3 className="font-medium text-slate-500 truncate max-w-[80%]">{title}</h3>
-            <button onClick={(e) => { e.stopPropagation(); toggleLang(); }} className="text-slate-400 hover:text-google-blue">
+           {/* Paper Texture Overlay */}
+           <div className="absolute inset-0 opacity-[0.03] pointer-events-none bg-[url('https://www.transparenttextures.com/patterns/cream-paper.png')] mix-blend-multiply dark:mix-blend-overlay"></div>
+
+          <div className="px-8 py-5 border-b border-slate-100 dark:border-slate-800 flex justify-between items-center bg-slate-50/50 dark:bg-slate-800/30">
+            <h3 className="font-serif font-bold text-slate-500 truncate max-w-[80%] opacity-60">{title}</h3>
+            <button onClick={(e) => { e.stopPropagation(); toggleLang(); }} className="text-slate-400 hover:text-slate-600">
               <Languages className="w-5 h-5" />
             </button>
           </div>
 
-          <div className="flex-1 overflow-y-auto px-8 py-8 space-y-8 no-scrollbar">
-            {/* Idea */}
+          <div className="flex-1 overflow-y-auto px-8 py-8 space-y-8 no-scrollbar relative z-10">
             <div>
-              <h3 className="flex items-center gap-2 text-sm font-bold text-google-blue uppercase tracking-wide mb-3">
-                <Brain className="w-5 h-5" />
+              <h3 className="text-xs font-bold text-indigo-600 dark:text-sunrise-sun uppercase tracking-widest mb-4 flex items-center gap-2">
+                <Brain className="w-4 h-4" />
                 {text.coreIdea}
               </h3>
-              <p className="text-xl text-slate-800 dark:text-slate-200 leading-relaxed font-display">
+              <p className="text-2xl text-slate-800 dark:text-slate-100 leading-relaxed font-serif">
                 {idea}
               </p>
             </div>
 
-            <div className="h-px bg-slate-100 dark:bg-white/5" />
-
-            {/* Complexity */}
             <div className="grid grid-cols-2 gap-4">
-               <div className="p-4 bg-slate-50 dark:bg-black/20 rounded-2xl">
-                 <div className="text-xs font-bold text-slate-400 uppercase mb-1">{text.timeComp}</div>
-                 <div className="text-lg font-mono font-medium text-slate-800 dark:text-slate-200">{card.timeComplexity}</div>
+               <div className="p-5 rounded-2xl bg-orange-50 dark:bg-orange-900/20 border border-orange-100 dark:border-orange-900/40">
+                 <div className="text-[10px] font-bold text-orange-600 dark:text-orange-400 uppercase tracking-widest mb-2">{text.timeComp}</div>
+                 <div className="font-mono font-bold text-lg text-slate-700 dark:text-slate-200">{card.timeComplexity}</div>
                </div>
-               <div className="p-4 bg-slate-50 dark:bg-black/20 rounded-2xl">
-                 <div className="text-xs font-bold text-slate-400 uppercase mb-1">{text.spaceComp}</div>
-                 <div className="text-lg font-mono font-medium text-slate-800 dark:text-slate-200">{card.spaceComplexity}</div>
+               <div className="p-5 rounded-2xl bg-blue-50 dark:bg-blue-900/20 border border-blue-100 dark:border-blue-900/40">
+                 <div className="text-[10px] font-bold text-blue-600 dark:text-blue-400 uppercase tracking-widest mb-2">{text.spaceComp}</div>
+                 <div className="font-mono font-bold text-lg text-slate-700 dark:text-slate-200">{card.spaceComplexity}</div>
                </div>
             </div>
 
-            {/* External Resource (LeetCode) */}
-            <div>
-               <a 
-                 href={solutionUrl}
-                 target="_blank"
-                 rel="noopener noreferrer"
-                 className="group flex items-center gap-3 p-4 bg-slate-50 dark:bg-white/5 rounded-2xl hover:bg-slate-100 dark:hover:bg-white/10 transition-colors border border-transparent hover:border-slate-200 dark:hover:border-white/10"
-               >
-                 <div className="p-2 bg-white dark:bg-black/20 rounded-full text-google-blue shadow-sm group-hover:scale-110 transition-transform">
-                   <PlayCircle className="w-5 h-5" />
-                 </div>
-                 <div className="flex-1">
-                   <div className="font-medium text-slate-800 dark:text-slate-200 text-sm flex items-center gap-2">
-                     {text.viewSolution}
-                     <ExternalLink className="w-3.5 h-3.5 text-slate-400" />
-                   </div>
-                   <div className="text-xs text-slate-500 mt-0.5">leetcode.cn / leetcode.com</div>
-                 </div>
-               </a>
-            </div>
+            <a 
+              href={solutionUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-2 text-slate-500 hover:text-indigo-600 dark:hover:text-sunrise-sun transition-colors group px-4 py-2 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-800"
+            >
+              <ExternalLink className="w-4 h-4" />
+              <span className="font-medium text-sm border-b border-transparent group-hover:border-current transition-all">{text.viewSolution}</span>
+            </a>
           </div>
 
-          {/* Rating */}
-          <div className="p-6 bg-slate-50 dark:bg-[#2b2c30] grid grid-cols-3 gap-4">
-             <button onClick={() => handleRate(Rating.Forgot)} className="flex flex-col items-center py-3 rounded-2xl hover:bg-red-100 dark:hover:bg-red-900/30 transition-colors group">
-               <RefreshCw className="w-6 h-6 text-slate-400 group-hover:text-google-red mb-1" />
-               <span className="text-xs font-bold text-slate-500 group-hover:text-google-red">{text.forgot}</span>
-             </button>
-             <button onClick={() => handleRate(Rating.Hazy)} className="flex flex-col items-center py-3 rounded-2xl hover:bg-yellow-100 dark:hover:bg-yellow-900/30 transition-colors group">
-               <HelpCircle className="w-6 h-6 text-slate-400 group-hover:text-google-yellow mb-1" />
-               <span className="text-xs font-bold text-slate-500 group-hover:text-google-yellow">{text.hazy}</span>
-             </button>
-             <button onClick={() => handleRate(Rating.Mastered)} className="flex flex-col items-center py-3 rounded-2xl hover:bg-green-100 dark:hover:bg-green-900/30 transition-colors group">
-               <CheckCircle className="w-6 h-6 text-slate-400 group-hover:text-google-green mb-1" />
-               <span className="text-xs font-bold text-slate-500 group-hover:text-google-green">{text.mastered}</span>
-             </button>
+          <div className="p-6 bg-slate-50/80 dark:bg-slate-950/50 border-t border-slate-100 dark:border-slate-800 backdrop-blur-md">
+             <div className="grid grid-cols-3 gap-4">
+               {[
+                 { rating: Rating.Forgot, icon: RefreshCw, label: text.forgot, color: 'text-rose-600 bg-rose-50 hover:bg-rose-100 border-rose-200 dark:bg-rose-900/20 dark:hover:bg-rose-900/40 dark:border-rose-800 dark:text-rose-400' },
+                 { rating: Rating.Hazy, icon: HelpCircle, label: text.hazy, color: 'text-amber-600 bg-amber-50 hover:bg-amber-100 border-amber-200 dark:bg-amber-900/20 dark:hover:bg-amber-900/40 dark:border-amber-800 dark:text-amber-400' },
+                 { rating: Rating.Mastered, icon: CheckCircle, label: text.mastered, color: 'text-emerald-600 bg-emerald-50 hover:bg-emerald-100 border-emerald-200 dark:bg-emerald-900/20 dark:hover:bg-emerald-900/40 dark:border-emerald-800 dark:text-emerald-400' }
+               ].map((btn) => (
+                 <button 
+                   key={btn.label}
+                   onClick={() => handleRate(btn.rating)} 
+                   className={`flex flex-col items-center gap-2 py-4 rounded-xl border transition-all ${btn.color} active:scale-95 shadow-sm`}
+                 >
+                   <btn.icon className="w-5 h-5" />
+                   <span className="text-[10px] font-bold uppercase tracking-widest">{btn.label}</span>
+                 </button>
+               ))}
+             </div>
           </div>
         </div>
       </div>
