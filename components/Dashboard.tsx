@@ -3,6 +3,8 @@ import React from 'react';
 import { Question, Language } from '../types';
 import { Play, Book, Minus, Plus, RefreshCw, ArrowLeft } from 'lucide-react';
 
+const PRACTICE_COUNT_KEY = 'leetcode-flash-practice-count';
+
 interface Props {
   totalCount: number;
   onStartPractice: (count: number) => void;
@@ -16,7 +18,22 @@ export const Dashboard: React.FC<Props> = ({
   onOpenLibrary,
   lang, 
 }) => {
-  const [practiceCount, setPracticeCount] = React.useState(10);
+  const [practiceCount, setPracticeCount] = React.useState(() => {
+    const saved = localStorage.getItem(PRACTICE_COUNT_KEY);
+    const parsed = saved ? parseInt(saved, 10) : 10;
+    return isNaN(parsed) ? 10 : Math.max(5, parsed);
+  });
+
+  React.useEffect(() => {
+    localStorage.setItem(PRACTICE_COUNT_KEY, practiceCount.toString());
+  }, [practiceCount]);
+
+  // Ensure count doesn't exceed total available if data changes
+  React.useEffect(() => {
+    if (totalCount > 0 && practiceCount > totalCount) {
+      setPracticeCount(totalCount);
+    }
+  }, [totalCount, practiceCount]);
 
   const t = {
     en: {
