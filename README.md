@@ -34,18 +34,18 @@
 
 ## 二、打包为电脑软件 (.exe)
 
-本项目已包含 `main.js` 配置文件，支持通过 **Electron** 打包为桌面应用。
+本项目已包含 `main.cjs` 配置文件，支持通过 **Electron** 打包为桌面应用。
 
 1. **安装 Electron 相关依赖**：
    ```bash
    npm install --save-dev electron electron-builder
    ```
 
-2. **修改 `package.json`**：
-   请手动修改你的 `package.json` 文件，添加以下内容：
+2. **修改 `package.json` (重要！)**：
+   请手动修改你的 `package.json` 文件，将 `main` 字段改为 `main.cjs`：
    ```json
    {
-     "main": "main.js",
+     "main": "main.cjs",
      "scripts": {
        "dev": "vite",
        "build": "tsc && vite build",
