@@ -1,18 +1,22 @@
+
 import React, { useState } from 'react';
-import { Flashcard as FlashcardType, Rating, Difficulty, Language } from '../types';
-import { Brain, RefreshCw, CheckCircle, HelpCircle, Languages, ExternalLink } from 'lucide-react';
+import { Question, Difficulty, Language } from '../types';
+import { Brain, ArrowRight, Languages, ExternalLink, ArrowLeft } from 'lucide-react';
 
 interface Props {
-  card: FlashcardType;
-  onRate: (rating: Rating) => void;
+  card: Question;
+  onNext?: () => void;
+  onBack?: () => void;
   lang: Language;
   toggleLang: () => void;
+  isSession: boolean; // True if in practice mode, false if viewing from library
+  progressText?: string;
 }
 
 const DifficultyBadge = ({ level }: { level: Difficulty }) => {
   const styles = {
     [Difficulty.Easy]: 'text-emerald-700 bg-emerald-50 border-emerald-200 dark:text-emerald-300 dark:bg-emerald-900/30 dark:border-emerald-800',
-    [Difficulty.Medium]: 'text-amber-700 bg-amber-50 border-amber-200 dark:text-orange-300 dark:bg-orange-900/30 dark:border-orange-800', // Orange for sunrise theme
+    [Difficulty.Medium]: 'text-amber-700 bg-amber-50 border-amber-200 dark:text-orange-300 dark:bg-orange-900/30 dark:border-orange-800', 
     [Difficulty.Hard]: 'text-rose-700 bg-rose-50 border-rose-200 dark:text-rose-300 dark:bg-rose-900/30 dark:border-rose-800',
   };
   return (
@@ -22,7 +26,7 @@ const DifficultyBadge = ({ level }: { level: Difficulty }) => {
   );
 };
 
-export const Flashcard: React.FC<Props> = ({ card, onRate, lang, toggleLang }) => {
+export const Flashcard: React.FC<Props> = ({ card, onNext, onBack, lang, toggleLang, isSession, progressText }) => {
   const [isFlipped, setIsFlipped] = useState(false);
 
   React.useEffect(() => {
@@ -32,10 +36,6 @@ export const Flashcard: React.FC<Props> = ({ card, onRate, lang, toggleLang }) =
   const handleFlip = (e: React.MouseEvent) => {
     e.stopPropagation();
     setIsFlipped(true);
-  };
-
-  const handleRate = (rating: Rating) => {
-    onRate(rating);
   };
 
   const t = {
@@ -48,10 +48,9 @@ export const Flashcard: React.FC<Props> = ({ card, onRate, lang, toggleLang }) =
       timeComp: "Time Complexity",
       spaceComp: "Space Complexity",
       viewSolution: "Official Solution",
-      problem: "Problem",
-      forgot: "Forgot",
-      hazy: "Hazy",
-      mastered: "Mastered"
+      next: "Next Question",
+      back: "Back to List",
+      finish: "Finish Session"
     },
     zh: {
       showAnswer: "查看答案",
@@ -62,10 +61,9 @@ export const Flashcard: React.FC<Props> = ({ card, onRate, lang, toggleLang }) =
       timeComp: "时间复杂度",
       spaceComp: "空间复杂度",
       viewSolution: "官方题解",
-      problem: "题目",
-      forgot: "忘记",
-      hazy: "模糊",
-      mastered: "熟记"
+      next: "下一题",
+      back: "返回列表",
+      finish: "结束练习"
     }
   };
 
@@ -79,13 +77,13 @@ export const Flashcard: React.FC<Props> = ({ card, onRate, lang, toggleLang }) =
     : `https://leetcode.com/problems/${card.slug}/editorial/`;
 
   return (
-    <div className="w-full max-w-2xl mx-auto h-[calc(100vh-120px)] min-h-[500px] lg:h-[700px] relative select-none" style={{ perspective: '2500px' }}>
+    <div className="w-full max-w-2xl mx-auto h-[calc(100vh-140px)] min-h-[500px] lg:h-[700px] relative select-none" style={{ perspective: '2500px' }}>
       <div 
         className="relative w-full h-full duration-700 ease-out-back"
         style={{
           transformStyle: 'preserve-3d',
           transform: isFlipped ? 'rotateY(180deg)' : 'rotateY(0deg)',
-          transitionTimingFunction: 'cubic-bezier(0.34, 1.56, 0.64, 1)' // Bouncy flip
+          transitionTimingFunction: 'cubic-bezier(0.34, 1.56, 0.64, 1)'
         }}
       >
         {/* FRONT */}
@@ -93,7 +91,6 @@ export const Flashcard: React.FC<Props> = ({ card, onRate, lang, toggleLang }) =
           className="absolute w-full h-full flex flex-col rounded-[2.5rem] overflow-hidden bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl border border-white dark:border-slate-700 shadow-2xl shadow-slate-200/40 dark:shadow-black/60"
           style={{ backfaceVisibility: 'hidden', WebkitBackfaceVisibility: 'hidden', zIndex: isFlipped ? 0 : 2 }}
         >
-          {/* Paper Texture Overlay */}
           <div className="absolute inset-0 opacity-[0.03] pointer-events-none bg-[url('https://www.transparenttextures.com/patterns/cream-paper.png')] mix-blend-multiply dark:mix-blend-overlay"></div>
 
           <div className="px-6 py-6 lg:px-10 lg:pt-10 lg:pb-6 flex-1 flex flex-col relative z-10">
@@ -104,9 +101,16 @@ export const Flashcard: React.FC<Props> = ({ card, onRate, lang, toggleLang }) =
                <div className="flex gap-2 relative z-10">
                  <DifficultyBadge level={card.difficulty} />
                </div>
-               <button onClick={(e) => { e.stopPropagation(); toggleLang(); }} className="relative z-10 p-2 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-full transition-colors text-slate-400">
-                   <Languages className="w-5 h-5" />
-               </button>
+               <div className="flex gap-2">
+                 {progressText && (
+                   <span className="px-3 py-1 bg-slate-100 dark:bg-slate-800 rounded-full text-xs font-mono text-slate-500 self-center">
+                     {progressText}
+                   </span>
+                 )}
+                 <button onClick={(e) => { e.stopPropagation(); toggleLang(); }} className="relative z-10 p-2 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-full transition-colors text-slate-400">
+                     <Languages className="w-5 h-5" />
+                 </button>
+               </div>
             </div>
 
             <h2 className="text-2xl lg:text-4xl font-serif font-bold text-slate-800 dark:text-slate-100 mb-4 lg:mb-6 leading-tight relative z-10">
@@ -122,7 +126,6 @@ export const Flashcard: React.FC<Props> = ({ card, onRate, lang, toggleLang }) =
             </div>
 
             <div className="flex-1 overflow-y-auto pr-2 relative z-10 no-scrollbar space-y-6 lg:space-y-8">
-               {/* Increased font size and used font-normal for better readability */}
                <p className="text-xl lg:text-2xl text-slate-700 dark:text-slate-200 leading-relaxed font-sans font-normal">
                  {desc}
                </p>
@@ -162,8 +165,7 @@ export const Flashcard: React.FC<Props> = ({ card, onRate, lang, toggleLang }) =
             transform: 'rotateY(180deg)',
           }}
         >
-           {/* Paper Texture Overlay */}
-           <div className="absolute inset-0 opacity-[0.03] pointer-events-none bg-[url('https://www.transparenttextures.com/patterns/cream-paper.png')] mix-blend-multiply dark:mix-blend-overlay"></div>
+          <div className="absolute inset-0 opacity-[0.03] pointer-events-none bg-[url('https://www.transparenttextures.com/patterns/cream-paper.png')] mix-blend-multiply dark:mix-blend-overlay"></div>
 
           <div className="px-5 py-4 lg:px-8 lg:py-5 border-b border-slate-100 dark:border-slate-800 flex justify-between items-center bg-slate-50/50 dark:bg-slate-800/30">
             <h3 className="font-serif font-bold text-slate-500 truncate max-w-[80%] opacity-60 text-sm lg:text-base">{title}</h3>
@@ -206,22 +208,23 @@ export const Flashcard: React.FC<Props> = ({ card, onRate, lang, toggleLang }) =
           </div>
 
           <div className="p-4 lg:p-6 bg-slate-50/80 dark:bg-slate-950/50 border-t border-slate-100 dark:border-slate-800 backdrop-blur-md">
-             <div className="grid grid-cols-3 gap-3 lg:gap-4">
-               {[
-                 { rating: Rating.Forgot, icon: RefreshCw, label: text.forgot, color: 'text-rose-600 bg-rose-50 hover:bg-rose-100 border-rose-200 dark:bg-rose-900/20 dark:hover:bg-rose-900/40 dark:border-rose-800 dark:text-rose-400' },
-                 { rating: Rating.Hazy, icon: HelpCircle, label: text.hazy, color: 'text-amber-600 bg-amber-50 hover:bg-amber-100 border-amber-200 dark:bg-amber-900/20 dark:hover:bg-amber-900/40 dark:border-amber-800 dark:text-amber-400' },
-                 { rating: Rating.Mastered, icon: CheckCircle, label: text.mastered, color: 'text-emerald-600 bg-emerald-50 hover:bg-emerald-100 border-emerald-200 dark:bg-emerald-900/20 dark:hover:bg-emerald-900/40 dark:border-emerald-800 dark:text-emerald-400' }
-               ].map((btn) => (
-                 <button 
-                   key={btn.label}
-                   onClick={() => handleRate(btn.rating)} 
-                   className={`flex flex-col items-center gap-2 py-3 lg:py-4 rounded-xl border transition-all ${btn.color} active:scale-95 shadow-sm`}
-                 >
-                   <btn.icon className="w-5 h-6 lg:w-6 lg:h-6" />
-                   <span className="text-[10px] lg:text-xs font-bold uppercase tracking-widest">{btn.label}</span>
-                 </button>
-               ))}
-             </div>
+             {isSession ? (
+               <button 
+                 onClick={onNext}
+                 className="w-full flex items-center justify-center gap-2 py-3 lg:py-4 rounded-xl font-serif font-bold text-lg transition-all bg-emerald-600 hover:bg-emerald-700 text-white shadow-lg shadow-emerald-600/20 hover:shadow-emerald-600/30 hover:-translate-y-1 active:scale-95"
+               >
+                 <span>{text.next}</span>
+                 <ArrowRight className="w-5 h-5" />
+               </button>
+             ) : (
+               <button 
+                 onClick={onBack}
+                 className="w-full flex items-center justify-center gap-2 py-3 lg:py-4 rounded-xl font-serif font-bold text-lg transition-all bg-slate-200 dark:bg-slate-800 hover:bg-slate-300 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200"
+               >
+                 <ArrowLeft className="w-5 h-5" />
+                 <span>{text.back}</span>
+               </button>
+             )}
           </div>
         </div>
       </div>
