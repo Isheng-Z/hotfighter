@@ -1,0 +1,5 @@
+{
+  "name": "LeetCode Flash",
+  "description": "An SRS (Spaced Repetition System) based flashcard app to master LeetCode Hot 100 solution patterns using the Ebbinghaus forgetting curve.",
+  "requestFramePermissions": []
+}
